@@ -1,0 +1,72 @@
+---
+title: Baroque Logic
+description: A small Eleventy component workbench.
+records:
+  - label: ACTIVE
+    name: Rococo
+    body: A first record assembled from data.
+
+  - label: NOTE
+    name: Machine
+    body: Eleventy repeats the component for every item in this list.
+
+  - label: INDEX
+    name: Cabinet
+    body: Add another item here and another plaque appears.
+---
+{% from "components/plaque.njk" import plaque %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ description }}">
+    <link rel="stylesheet" href="/assets/site.css">
+  </head>
+  <body>
+    <main class="workbench">
+      <header class="masthead">
+        <p class="masthead__signal">ELEVENTY WORKBENCH / 001</p>
+        <h1>{{ site.name }}</h1>
+        <p>{{ site.tagline }}</p>
+      </header>
+
+      <section class="plaque-grid" aria-labelledby="records-heading">
+        <h2 id="records-heading" class="visually-hidden">Records</h2>
+
+        {% for record in records %}
+          {{ plaque(record.label, record.name, record.body) }}
+        {% endfor %}
+      </section>
+      <section class="post-index" aria-labelledby="writing-heading">
+        <h2 id="writing-heading">Writing</h2>
+
+        <ul class="post-index__list">
+  {% for post in collections.posts | reverse %}
+    <li class="post-index__item">
+      <p class="post-index__date">
+        <time>{{ post.data.displayDate }}</time>
+      </p>
+
+      <h3>
+        <a href="{{ post.url }}">{{ post.data.title }}</a>
+      </h3>
+
+      {% if post.data.image %}
+        <img
+          class="post-index__image"
+          src="{{ post.data.image }}"
+          alt="{{ post.data.imageAlt }}"
+          loading="lazy"
+        >
+      {% endif %}
+
+      <p>{{ post.data.summary }}</p>
+    </li>
+  {% endfor %}
+</ul>
+</section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+name: Publish site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - uses: actions/configure-pages@v5
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Record published revision
+        run: |
+          node <<'JS'
+          const fs = require("node:fs");
+          fs.writeFileSync("_site/revision.json", JSON.stringify({
+            person: "baroquelogic",
+            publisher: process.env.GITHUB_REPOSITORY_OWNER,
+            repository: process.env.GITHUB_REPOSITORY,
+            commit: process.env.GITHUB_SHA
+          }, null, 2));
+          JS
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - uses: actions/deploy-pages@v4
+        id: deployment
